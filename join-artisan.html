@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Join Artisan</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+Handloom Artisan Platform
+</div>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="collections.html">Collections</a>
+    <a href="artisans.html">Artisans</a>
+    <a href="join-artisan.html">Join Artisan</a>
+    <a href="cart.html">Cart</a>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+</header>
+
+<section class="form-section">
+
+<h1>Join As Artisan</h1>
+
+<form action="register_artisan.php"
+      method="POST"
+      enctype="multipart/form-data">
+
+<input
+type="text"
+name="name"
+placeholder="Full Name"
+required>
+
+<input
+type="email"
+name="email"
+placeholder="Email"
+required>
+
+<input
+type="text"
+name="phone"
+placeholder="Phone Number"
+required>
+
+<input
+type="text"
+name="location"
+placeholder="Location"
+required>
+
+<input
+type="text"
+name="craft"
+placeholder="Craft Type"
+required>
+
+<input
+type="text"
+name="experience"
+placeholder="Experience"
+required>
+
+<input
+type="file"
+name="image"
+required>
+
+<input
+type="password"
+name="password"
+placeholder="Password"
+required>
+
+<textarea
+name="description"
+placeholder="Tell us about your craft">
+</textarea>
+
+<button type="submit">
+Register
+</button>
+
+</form>
+
+</section>
+
+</body>
+</html>
