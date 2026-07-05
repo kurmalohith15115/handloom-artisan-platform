@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .details-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    .details-img-box {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-beige);
+      max-height: 500px;
+    }
+    .details-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .info-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .artisan-mini-card {
+      background-color: var(--bg-beige);
+      border-radius: var(--radius);
+      padding: 18px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .review-item {
+      border-bottom: 1px solid var(--border-color);
+      padding: 15px 0;
+    }
+    .review-item:last-child {
+      border-bottom: none;
+    }
+    @media (max-width: 768px) {
+      .details-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="section container">
+    <!-- Breadcrumb back link -->
+    <a href="/products.html" style="color:var(--text-muted); font-weight:600; font-size:0.9rem;">← Back to Collections</a>
+
+    <div class="details-layout">
+      <!-- Image box -->
+      <div class="details-img-box">
+        <img id="product-img" src="" alt="Product Image">
+      </div>
+
+      <!-- Info Pane -->
+      <div class="info-pane">
+        <span id="product-cat" class="badge badge-shipped" style="width:fit-content;">Category</span>
+        <h1 id="product-title" style="font-size:2.25rem; margin-bottom:5px;">Product Title</h1>
+        
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span id="product-stars" style="font-size:1.1rem; font-weight:700; color:var(--primary);">⭐ 0.0</span>
+          <span id="product-reviews-count" style="font-size:0.9rem; color:var(--text-muted);">(0 customer reviews)</span>
+        </div>
+
+        <div id="product-price" style="font-size:2rem; font-weight:700; color:var(--primary); margin:10px 0;">₹0.00</div>
+
+        <div>
+          <h3 style="font-size:1.1rem; font-family:var(--font-body); margin-bottom:5px;">Product Overview</h3>
+          <p id="product-desc" style="color:var(--text-muted); font-size:0.95rem;">Detailed description...</p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:15px; margin:15px 0;">
+          <div>
+            <label for="qty-input" style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:5px;">Quantity</label>
+            <input type="number" id="qty-input" value="1" min="1" style="width:70px; padding:8px; border:1px solid var(--border-color); border-radius:4px; text-align:center;">
+          </div>
+          <div>
+            <span style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:5px;">Availability</span>
+            <span id="product-stock-status" class="badge">In Stock</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:15px;">
+          <button id="add-to-cart-btn" class="btn btn-primary" style="flex:1; padding:15px;" onclick="handleAddToCart()">🛒 Add to Shopping Cart</button>
+          <button class="btn btn-outline" style="padding:15px;" onclick="handleAddToWishlist()">❤️ Wishlist</button>
+        </div>
+
+        <!-- Artisan Mini Card -->
+        <div class="artisan-mini-card">
+          <img id="artisan-photo" src="/uploads/default-avatar.svg" alt="Artisan Photo" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--secondary);">
+          <div style="flex:1;">
+            <span style="font-size:0.75rem; text-transform:uppercase; color:var(--secondary); font-weight:700;">Crafted By</span>
+            <h4 id="artisan-shop-name" style="margin:0; font-size:1.1rem;">Artisan Shop</h4>
+            <p id="artisan-loc" style="font-size:0.8rem; color:var(--text-muted); margin:0;">📍 Location</p>
+          </div>
+          <a id="artisan-profile-link" href="#" class="btn btn-secondary btn-sm">Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="section" style="margin-top:40px; border-top:1px solid var(--border-color); padding-top:40px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+        <!-- Left: Customer Reviews list -->
+        <div>
+          <h2>Reviews & Ratings</h2>
+          <div id="reviews-list-container" style="margin-top:20px;">
+            <p style="color:var(--text-muted);">No reviews submitted yet for this product.</p>
+          </div>
+        </div>
+
+        <!-- Right: Submit review form (Only Customer role) -->
+        <div id="review-form-wrapper" style="display:none;">
+          <h2>Write a Customer Review</h2>
+          <form id="review-form" style="margin-top:20px;" onsubmit="handleReviewSubmit(event)">
+            <div class="form-group">
+              <label>Your Overall Rating</label>
+              <div class="star-rating-input" id="star-picker">
+                <span data-val="1">★</span>
+                <span data-val="2">★</span>
+                <span data-val="3">★</span>
+                <span data-val="4">★</span>
+                <span data-val="5">★</span>
+              </div>
+              <input type="hidden" id="selected-rating" name="rating" value="0">
+            </div>
+            
+            <div class="form-group">
+              <label for="review-comment">Review Comments</label>
+              <textarea id="review-comment" required placeholder="Write details about the handloom quality, colors, fabric softness..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </div>
+        
+        <!-- Alternate wrapper if not customer -->
+        <div id="review-auth-prompt" style="background-color:var(--bg-beige); padding:25px; border-radius:var(--radius); border:1px solid var(--border-color); height:fit-content;">
+          <h4>Share Your Experience</h4>
+          <p style="font-size:0.9rem; color:var(--text-muted); margin-top:8px;">Only verified customers can write product reviews. Please log in with a Customer account to leave feedback.</p>
+          <a href="/login.html" class="btn btn-outline btn-sm" style="margin-top:15px;">Login as Customer</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let productData = null;
+    let productId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      productId = params.get('id');
+      if (!productId) {
+        window.location.href = '/products.html';
+        return;
+      }
+
+      await loadProductDetails();
+      await loadReviews();
+      configureReviewForm();
+    });
+
+    async function loadProductDetails() {
+      try {
+        const response = await fetch(`/api/products/${productId}`);
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          productData = resJson.data;
+          
+          document.getElementById('product-img').src = productData.imageUrl;
+          document.getElementById('product-img').alt = productData.title;
+          document.getElementById('product-title').textContent = productData.title;
+          document.getElementById('product-cat').textContent = productData.category;
+          document.getElementById('product-price').textContent = `₹${productData.price}`;
+          document.getElementById('product-desc').textContent = productData.description;
+          document.getElementById('product-stars').textContent = `⭐ ${productData.rating || 'New'}`;
+          document.getElementById('product-reviews-count').textContent = `(${productData.reviewsCount} customer reviews)`;
+          
+          // Stock info
+          const stockEl = document.getElementById('product-stock-status');
+          if (productData.stock > 0) {
+            stockEl.textContent = `In Stock (${productData.stock} left)`;
+            stockEl.className = 'badge badge-delivered';
+            document.getElementById('qty-input').max = productData.stock;
+          } else {
+            stockEl.textContent = 'Out of Stock';
+            stockEl.className = 'badge badge-failed';
+            document.getElementById('qty-input').disabled = true;
+            document.getElementById('qty-input').value = 0;
+            document.getElementById('add-to-cart-btn').disabled = true;
+            document.getElementById('add-to-cart-btn').style.opacity = 0.5;
+            document.getElementById('add-to-cart-btn').style.cursor = 'not-allowed';
+          }
+
+          // Artisan info
+          document.getElementById('artisan-shop-name').textContent = productData.shopName;
+          document.getElementById('artisan-loc').textContent = `📍 ${productData.artisanLocation}`;
+          document.getElementById('artisan-photo').src = productData.artisanPhotoUrl || '/uploads/default-avatar.svg';
+          document.getElementById('artisan-profile-link').href = `/artisan.html?id=${productData.artisan._id}`;
+        } else {
+          showToast('Product details unavailable.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadReviews() {
+      try {
+        const response = await fetch(`/api/reviews/${productId}`);
+        const resJson = await response.json();
+        
+        const container = document.getElementById('reviews-list-container');
+        if (resJson.success && resJson.data.length > 0) {
+          container.innerHTML = resJson.data.map(review => `
+            <div class="review-item">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="font-weight:600; font-size:0.95rem;">👤 ${review.user.username}</span>
+                <span style="color:var(--secondary); font-weight:700;">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+              </div>
+              <p style="font-size:0.9rem; color:var(--text-muted);">${review.comment}</p>
+              <span style="font-size:0.75rem; color:#aaa; display:block; margin-top:5px;">Reviewed on ${new Date(review.createdAt).toLocaleDateString()}</span>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = `<p style="color:var(--text-muted);">No reviews submitted yet for this product. Be the first to leave one!</p>`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function configureReviewForm() {
+      const isCustomer = Session.isCustomer();
+      const promptEl = document.getElementById('review-auth-prompt');
+      const formEl = document.getElementById('review-form-wrapper');
+
+      if (isCustomer) {
+        promptEl.style.display = 'none';
+        formEl.style.display = 'block';
+
+        // Star picker click functionality
+        const stars = document.querySelectorAll('#star-picker span');
+        const ratingInput = document.getElementById('selected-rating');
+
+        stars.forEach(star => {
+          star.addEventListener('click', () => {
+            const val = parseInt(star.getAttribute('data-val'));
+            ratingInput.value = val;
+            
+            // Highlight selected stars
+            stars.forEach((s, idx) => {
+              if (idx < val) {
+                s.classList.add('active');
+              } else {
+                s.classList.remove('active');
+              }
+            });
+          });
+        });
+      } else {
+        promptEl.style.display = 'block';
+        formEl.style.display = 'none';
+      }
+    }
+
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
+      const rating = document.getElementById('selected-rating').value;
+      const comment = document.getElementById('review-comment').value;
+
+      if (rating === '0') {
+        showToast('Please select a star rating (1 to 5 stars).', 'error');
+        return;
+      }
+
+      try {
+        const response = await apiFetch(`/api/reviews/${productId}`, {
+          method: 'POST',
+          body: JSON.stringify({ rating, comment })
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          showToast('Review submitted successfully!', 'success');
+          document.getElementById('review-comment').value = '';
+          
+          // Reset star picker styling
+          document.querySelectorAll('#star-picker span').forEach(s => s.classList.remove('active'));
+          document.getElementById('selected-rating').value = 0;
+
+          // Reload
+          await loadProductDetails();
+          await loadReviews();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Server error uploading review.', 'error');
+      }
+    }
+
+    function handleAddToCart() {
+      if (!productData) return;
+      const qtyInput = document.getElementById('qty-input');
+      const qty = parseInt(qtyInput.value);
+      
+      if (isNaN(qty) || qty <= 0) {
+        showToast('Please enter a valid quantity.', 'error');
+        return;
+      }
+
+      Cart.add(productData, qty);
+    }
+
+    function handleAddToWishlist() {
+      let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if (wishlist.includes(productId)) {
+        showToast('Already added to wishlist.', 'info');
+      } else {
+        wishlist.push(productId);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        showToast('Saved to wishlist!', 'success');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="section container">
+    <h1>Platform Administrator Panel</h1>
+    <p style="color:var(--text-muted); margin-bottom: 25px;">Monitor metrics, verify artisan credentials, regulate platform content, and review payment transactions.</p>
+    
+    <div class="dashboard-container">
+      <!-- Sidebar Navigation -->
+      <aside class="dashboard-sidebar">
+        <ul class="dashboard-menu">
+          <li><a href="#" id="menu-overview" class="active" onclick="switchTab('overview')">📊 Platform Overview</a></li>
+          <li><a href="#" id="menu-artisans" onclick="switchTab('artisans')">🤝 Artisan Approval</a></li>
+          <li><a href="#" id="menu-products" onclick="switchTab('products')">🛡️ Moderate Products</a></li>
+          <li><a href="#" id="menu-customers" onclick="switchTab('customers')">👥 Customer Accounts</a></li>
+          <li><a href="#" id="menu-payments" onclick="switchTab('payments')">💳 Transactions Log</a></li>
+        </ul>
+      </aside>
+
+      <!-- Content Panels -->
+      <section class="dashboard-content">
+        
+        <!-- Tab 1: Platform Overview -->
+        <div id="tab-overview" class="tab-section active">
+          <h2>Analytics Dashboard</h2>
+          <div class="dashboard-card-grid">
+            <div class="dashboard-card" style="border-top: 4px solid var(--success);">
+              <h3 id="stat-revenue">₹0</h3>
+              <p>Platform GMV / Sales</p>
+            </div>
+            <div class="dashboard-card" style="border-top: 4px solid var(--primary);">
+              <h3 id="stat-orders">0</h3>
+              <p>Total Placed Orders</p>
+            </div>
+            <div class="dashboard-card" style="border-top: 4px solid var(--secondary);">
+              <h3 id="stat-artisans">0</h3>
+              <p>Artisans Count</p>
+            </div>
+            <div class="dashboard-card" style="border-top: 4px solid var(--info);">
+              <h3 id="stat-pending">0</h3>
+              <p>Pending Approvals</p>
+            </div>
+          </div>
+          
+          <div style="margin-top:40px;">
+            <h3>Overview & Growth Tips</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.7; margin-top:10px;">
+              • Promote artisans with high ratings (4.5+) on the homepage spotlight. This significantly increases purchase conversion rate.<br>
+              • Keep block regulations transparent. Block actions on artisans automatically flags all their linked products as inactive, immediately removing them from the storefront catalog.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab 2: Artisan Approval -->
+        <div id="tab-artisans" class="tab-section">
+          <h2>Artisans Verification Directory</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Review shop details and approve or restrict logins.</p>
+          
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Shop Photo</th>
+                  <th>Shop Name</th>
+                  <th>Village / Location</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                  <th>Verification Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-artisans-rows">
+                <tr><td colspan="6" style="text-align:center;">Loading records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Moderate Products -->
+        <div id="tab-products" class="tab-section">
+          <h2>Global Product Moderator</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Review artisan listings. Temporarily block items that violate catalog rules.</p>
+          
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Creations Title</th>
+                  <th>Artisan Shop</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-products-rows">
+                <tr><td colspan="6" style="text-align:center;">Loading products...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 4: Customer Accounts -->
+        <div id="tab-customers" class="tab-section">
+          <h2>Customer Account Management</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Regulate registered user profiles.</p>
+          
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer Username</th>
+                  <th>Email Address</th>
+                  <th>Joined Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-customers-rows">
+                <tr><td colspan="5" style="text-align:center;">Loading customer accounts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 5: Transactions Log -->
+        <div id="tab-payments" class="tab-section">
+          <h2>Transaction Ledger</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Audit paid order reference codes.</p>
+          
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order Reference ID</th>
+                  <th>Customer Email</th>
+                  <th>Amount</th>
+                  <th>Payment ID Reference</th>
+                  <th>Transaction Date</th>
+                </tr>
+              </thead>
+              <tbody id="admin-transactions-rows">
+                <tr><td colspan="5" style="text-align:center;">Loading payment records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Session.isLoggedIn() || !Session.isAdmin()) {
+        showToast('Administrator privileges required. Access denied.', 'error');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      loadAdminPanelData();
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.dashboard-menu a').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`menu-${tabName}`).classList.add('active');
+
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    async function loadAdminPanelData() {
+      try {
+        // Load Analytics
+        const analyticsRes = await apiFetch('/api/admin/analytics');
+        const analyticsJson = await analyticsRes.json();
+        
+        // Load Artisans
+        const artisansRes = await apiFetch('/api/admin/artisans');
+        const artisansJson = await artisansRes.json();
+
+        // Load Products
+        const productsRes = await apiFetch('/api/admin/products');
+        const productsJson = await productsRes.json();
+
+        // Load Customers
+        const customersRes = await apiFetch('/api/admin/customers');
+        const customersJson = await customersRes.json();
+
+        if (analyticsJson.success && artisansJson.success && productsJson.success && customersJson.success) {
+          renderOverview(analyticsJson.analytics);
+          renderArtisansList(artisansJson.data);
+          renderProductsModerator(productsJson.data);
+          renderCustomers(customersJson.data);
+          renderTransactions(analyticsJson.analytics.recentPayments);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Connection to server error. Dashboard data reload failed.', 'error');
+      }
+    }
+
+    function renderOverview(data) {
+      document.getElementById('stat-revenue').textContent = `₹${data.totalRevenue}`;
+      document.getElementById('stat-orders').textContent = data.ordersCount;
+      document.getElementById('stat-artisans').textContent = data.artisansCount;
+      document.getElementById('stat-pending').textContent = data.pendingArtisansCount;
+    }
+
+    function renderArtisansList(artisans) {
+      const tbody = document.getElementById('admin-artisans-rows');
+      if (artisans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No artisans currently registered on the platform.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = artisans.map(artisan => {
+        const hasShop = artisan.profile && artisan.profile.shopName;
+        const shopName = hasShop ? artisan.profile.shopName : 'Draft Shop Profile';
+        const location = hasShop ? artisan.profile.location : 'N/A';
+        const avatar = artisan.profile.photoUrl || '/uploads/default-avatar.svg';
+        const dateStr = new Date(artisan.createdAt).toLocaleDateString();
+
+        let statusClass = 'badge-pending';
+        if (artisan.status === 'approved') statusClass = 'badge-delivered';
+        if (artisan.status === 'blocked') statusClass = 'badge-failed';
+
+        // Verification Actions toggler
+        let actionBtn = '';
+        if (artisan.status === 'pending_approval') {
+          actionBtn = `
+            <button class="btn btn-secondary btn-sm" onclick="toggleArtisanVerification('${artisan._id}', 'approved')">Approve Artisan</button>
+            <button class="btn btn-danger btn-sm" onclick="toggleArtisanVerification('${artisan._id}', 'blocked')">Block</button>
+          `;
+        } else if (artisan.status === 'approved') {
+          actionBtn = `
+            <button class="btn btn-danger btn-sm" onclick="toggleArtisanVerification('${artisan._id}', 'blocked')">Block Artisan</button>
+          `;
+        } else {
+          actionBtn = `
+            <button class="btn btn-outline btn-sm" style="border-color:var(--success); color:var(--success);" onclick="toggleArtisanVerification('${artisan._id}', 'approved')">Approve / Unblock</button>
+          `;
+        }
+
+        return `
+          <tr>
+            <td><img src="${avatar}" alt="shop pic" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);"></td>
+            <td>
+              <strong>${shopName}</strong><br>
+              <span style="font-size:0.75rem; color:var(--text-muted);">username: ${artisan.username}</span>
+            </td>
+            <td>${location}</td>
+            <td><span class="badge ${statusClass}">${artisan.status}</span></td>
+            <td>${dateStr}</td>
+            <td>
+              <div style="display:flex; gap:8px;">${actionBtn}</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderProductsModerator(products) {
+      const tbody = document.getElementById('admin-products-rows');
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No products listed.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = products.map(product => {
+        let statusClass = 'badge-delivered';
+        let actionText = 'Block Listing';
+        let actionTarget = 'blocked';
+        let btnClass = 'btn-danger';
+
+        if (product.status === 'blocked') {
+          statusClass = 'badge-failed';
+          actionText = 'Unblock Item';
+          actionTarget = 'active';
+          btnClass = 'btn-outline';
+        }
+
+        return `
+          <tr>
+            <td><img src="${product.imageUrl}" alt="product image" style="width:45px; height:45px; border-radius:4px; object-fit:cover; border:1px solid var(--border-color);"></td>
+            <td>
+              <strong>${product.title}</strong><br>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Category: ${product.category}</span>
+            </td>
+            <td>${product.shopName}</td>
+            <td style="font-weight:600;">₹${product.price}</td>
+            <td><span class="badge ${statusClass}">${product.status}</span></td>
+            <td>
+              <button class="btn ${btnClass} btn-sm" onclick="toggleProductModeration('${product._id}', '${actionTarget}')">${actionText}</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderCustomers(customers) {
+      const tbody = document.getElementById('admin-customers-rows');
+      if (customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No customers accounts found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = customers.map(customer => {
+        const dateStr = new Date(customer.createdAt).toLocaleDateString();
+        
+        let statusClass = 'badge-delivered';
+        let actionBtn = `<button class="btn btn-danger btn-sm" onclick="toggleCustomerStatus('${customer._id}', 'blocked')">Block Account</button>`;
+        
+        if (customer.status === 'blocked') {
+          statusClass = 'badge-failed';
+          actionBtn = `<button class="btn btn-outline btn-sm" style="border-color:var(--success); color:var(--success);" onclick="toggleCustomerStatus('${customer._id}', 'approved')">Activate Account</button>`;
+        }
+
+        return `
+          <tr>
+            <td><strong>${customer.username}</strong></td>
+            <td>${customer.email}</td>
+            <td>${dateStr}</td>
+            <td><span class="badge ${statusClass}">${customer.status === 'blocked' ? 'blocked' : 'active'}</span></td>
+            <td>${actionBtn}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderTransactions(payments) {
+      const tbody = document.getElementById('admin-transactions-rows');
+      if (payments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No platform transactions recorded yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = payments.map(pay => {
+        const dateStr = new Date(pay.createdAt).toLocaleString();
+        return `
+          <tr>
+            <td style="font-family:monospace; font-size:0.8rem; font-weight:600;">${pay._id}</td>
+            <td>${pay.customer ? pay.customer.email : 'Deleted User'}</td>
+            <td style="font-weight:600; color:var(--success);">₹${pay.totalAmount}</td>
+            <td style="font-family:monospace; font-size:0.8rem;">${pay.paymentId}</td>
+            <td>${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function toggleArtisanVerification(artisanId, newStatus) {
+      try {
+        const response = await apiFetch(`/api/admin/artisans/${artisanId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          showToast(`Artisan status updated to "${newStatus}"!`, 'success');
+          loadAdminPanelData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function toggleProductModeration(productId, newStatus) {
+      try {
+        const response = await apiFetch(`/api/admin/products/${productId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          showToast(`Product listing is now set to "${newStatus}".`, 'success');
+          loadAdminPanelData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function toggleCustomerStatus(customerId, newStatus) {
+      try {
+        const response = await apiFetch(`/api/admin/customers/${customerId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          showToast(`Customer account status is now set to "${newStatus}".`, 'success');
+          loadAdminPanelData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

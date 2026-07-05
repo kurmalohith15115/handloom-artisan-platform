@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="100%" height="100%" fill="#D4AF37"/>
+  <!-- Geometric Diamond grid -->
+  <g fill="none" stroke="#800020" stroke-width="4">
+    <polygon points="200,40 320,160 200,280 80,160" />
+    <polygon points="200,80 280,160 200,240 120,160" fill="#800020" fill-opacity="0.15"/>
+    <circle cx="200" cy="160" r="15" fill="#800020"/>
+  </g>
+  <!-- Fringe lines representing hand-knotted loom -->
+  <g stroke="#FDFBF7" stroke-width="3">
+    <path d="M 40 380 L 40 400 M 80 380 L 80 400 M 120 380 L 120 400 M 160 380 L 160 400 M 200 380 L 200 400 M 240 380 L 240 400 M 280 380 L 280 400 M 320 380 L 320 400 M 360 380 L 360 400" />
+    <path d="M 40 0 L 40 20 M 80 0 L 80 20 M 120 0 L 120 20 M 160 0 L 160 20 M 200 0 L 200 20 M 240 0 L 240 20 M 280 0 L 280 20 M 320 0 L 320 20 M 360 0 L 360 20" />
+  </g>
+  <text x="50%" y="330" text-anchor="middle" fill="#800020" font-family="'Playfair Display', serif" font-size="20" font-weight="bold">Geometric Handloom Durry Rug</text>
+  <text x="50%" y="355" text-anchor="middle" fill="#FDFBF7" font-family="'Inter', sans-serif" font-size="12" letter-spacing="1">100% ORGANIC COTTON & WOOL</text>
+</svg>

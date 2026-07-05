@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artisan Shop Profile - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .profile-hero {
+      background-color: var(--bg-beige);
+      border-bottom: 2px solid var(--border-color);
+      padding: 50px 0;
+    }
+    .profile-header-layout {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+    .profile-avatar-big {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+    .profile-meta-details {
+      flex: 1;
+    }
+    @media (max-width: 768px) {
+      .profile-header-layout {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <!-- Artisan Profile Hero -->
+  <section class="profile-hero">
+    <div class="container profile-header-layout">
+      <img id="artisan-big-photo" src="/uploads/default-avatar.svg" alt="Artisan Photo" class="profile-avatar-big">
+      <div class="profile-meta-details">
+        <span id="artisan-badge" class="badge badge-delivered" style="margin-bottom:8px;">Approved Artisan</span>
+        <h1 id="artisan-shop" style="font-size: 2.5rem; margin-bottom: 5px;">Shop Name</h1>
+        <p id="artisan-loc" style="font-size: 1rem; color: var(--primary); font-weight:600; margin-bottom:10px;">📍 Location</p>
+        <p id="artisan-bio" style="color:var(--text-muted); font-size:1rem; max-width:800px; margin-bottom:15px;">Shop bio...</p>
+        
+        <div style="display:flex; flex-wrap:wrap; gap:20px; font-size:0.9rem; font-weight:500;">
+          <span id="artisan-phone">📞 Phone: Loading...</span>
+          <span id="artisan-rating">⭐ Average Rating: Loading...</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artisan Products Catalog -->
+  <section class="section container">
+    <div class="section-header" style="text-align:left; margin-bottom:35px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
+      <h2>Creations by this Artisan</h2>
+      <p style="margin-top:5px;">Purchase authentic hand-woven goods directly from this shop's weaving loom.</p>
+    </div>
+
+    <div id="artisan-catalog-container" class="product-grid">
+      <p style="text-align:center; grid-column:1/-1; color:var(--text-muted);">Loading creations...</p>
+    </div>
+  </section>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const artisanId = params.get('id');
+      
+      if (!artisanId) {
+        window.location.href = '/products.html';
+        return;
+      }
+
+      await loadArtisanProfile(artisanId);
+    });
+
+    async function loadArtisanProfile(id) {
+      try {
+        const response = await fetch(`/api/artisans/${id}`);
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          const { user, profile, products } = resJson.data;
+
+          document.getElementById('artisan-shop').textContent = profile.shopName;
+          document.getElementById('artisan-loc').textContent = `📍 Weaving in: ${profile.location}`;
+          document.getElementById('artisan-bio').textContent = profile.bio || 'This heritage weaver has not added a biography yet, but their master crafts speak for themselves.';
+          document.getElementById('artisan-phone').textContent = `📞 Direct Contact: ${profile.contactNumber}`;
+          document.getElementById('artisan-rating').textContent = `⭐ Average Rating: ${profile.rating || 'New'} (${profile.reviewsCount || 0} reviews)`;
+          document.getElementById('artisan-big-photo').src = profile.photoUrl || '/uploads/default-avatar.svg';
+          
+          if (user.status === 'blocked') {
+            document.getElementById('artisan-badge').textContent = 'Blocked by Admin';
+            document.getElementById('artisan-badge').className = 'badge badge-failed';
+          } else {
+            document.getElementById('artisan-badge').textContent = 'Verified Weaver';
+            document.getElementById('artisan-badge').className = 'badge badge-delivered';
+          }
+
+          renderArtisanProducts(products, profile.shopName, profile.location);
+        } else {
+          showToast('Failed to load artisan profile details.', 'error');
+        }
+      } catch (err) {
+        console.error('Artisan load failure:', err);
+      }
+    }
+
+    function renderArtisanProducts(products, shopName, location) {
+      const container = document.getElementById('artisan-catalog-container');
+      
+      if (!products || products.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:40px; background:#fff; border-radius:8px; border:1px solid var(--border-color);">
+            <p style="color:var(--text-muted); font-size:0.95rem;">This artisan hasn't listed any items for sale yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = products.map(product => `
+        <div class="product-card">
+          <div class="product-image-container">
+            <img src="${product.imageUrl}" alt="${product.title}">
+            <span class="product-badge">${product.category}</span>
+            <button class="wishlist-btn" onclick="addToWishlist('${product._id}')">❤️</button>
+          </div>
+          <div class="product-details-content">
+            <span class="product-shop">📍 ${location} | ${shopName}</span>
+            <a href="/product-details.html?id=${product._id}">
+              <h3 class="product-title">${product.title}</h3>
+            </a>
+            <div class="product-meta">
+              <span class="product-price">₹${product.price}</span>
+              <span class="product-rating">
+                ⭐ ${product.rating || 'New'} ${product.reviewsCount ? `(${product.reviewsCount})` : ''}
+              </span>
+            </div>
+            <div style="margin-top:15px; display:flex; gap:10px;">
+              <a href="/product-details.html?id=${product._id}" class="btn btn-outline btn-sm" style="flex:1;">Details</a>
+              <button class="btn btn-primary btn-sm" style="flex:1.2;" onclick="buyProductDirectly('${product._id}')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function buyProductDirectly(id) {
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        const resJson = await response.json();
+        if (resJson.success) {
+          Cart.add(resJson.data, 1);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function addToWishlist(id) {
+      let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if (wishlist.includes(id)) {
+        showToast('Product is already in your wishlist.', 'info');
+      } else {
+        wishlist.push(id);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        showToast('Added to wishlist!', 'success');
+      }
+    }
+  </script>
+</body>
+</html>

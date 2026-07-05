@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artisan Management Panel - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    .preview-img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="section container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom: 25px;">
+      <div>
+        <h1 style="margin:0;">Artisan Management Panel</h1>
+        <p id="artisan-shop-subtitle" style="color:var(--text-muted); font-size:0.95rem;">Manage your looms, listing catalog, and customer orders</p>
+      </div>
+      <button class="btn btn-primary" onclick="openProductModal()">➕ List New Creation</button>
+    </div>
+
+    <!-- Alert for approval status -->
+    <div id="artisan-approval-alert" style="display:none; padding:15px 25px; border-radius:var(--radius); margin-bottom:25px; border:1px solid #ffe699; background-color:#fff3cd; color:#856404; font-weight:600;">
+      ⚠️ Your artisan account is currently PENDING ADMINISTRATOR APPROVAL. You can set up your shop profile and list products, but they will not be visible on the public marketplace until approved.
+    </div>
+
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <ul class="dashboard-menu">
+          <li><a href="#" id="menu-overview" class="active" onclick="switchTab('overview')">📊 Sales Overview</a></li>
+          <li><a href="#" id="menu-inventory" onclick="switchTab('inventory')">📦 Inventory Items</a></li>
+          <li><a href="#" id="menu-orders" onclick="switchTab('orders')">🛍️ Customer Orders</a></li>
+          <li><a href="#" id="menu-profile" onclick="switchTab('profile')">⚙️ Shop Profile Settings</a></li>
+        </ul>
+      </aside>
+
+      <!-- Content -->
+      <section class="dashboard-content">
+        
+        <!-- Tab 1: Overview -->
+        <div id="tab-overview" class="tab-section active">
+          <h2>Sales Analytics</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Real-time updates on store health and metrics</p>
+          
+          <div class="dashboard-card-grid">
+            <div class="dashboard-card" style="border-top:4px solid var(--primary);">
+              <h3 id="stat-revenue">₹0</h3>
+              <p>Store Revenue</p>
+            </div>
+            <div class="dashboard-card" style="border-top:4px solid var(--secondary);">
+              <h3 id="stat-orders">0</h3>
+              <p>Total Orders</p>
+            </div>
+            <div class="dashboard-card" style="border-top:4px solid var(--success);">
+              <h3 id="stat-products">0</h3>
+              <p>Active Items</p>
+            </div>
+          </div>
+
+          <div style="background-color:var(--bg-cream); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:30px; margin-top:20px;">
+            <h3>Weaving Community News</h3>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-top:10px; line-height:1.7;">
+              • The National Handloom Expo starts next month. Registered artisans qualify for travel grants. Contact admin for registration codes.<br>
+              • Keep your stock counts updated! Automatic stock notifications will remind customers on wishlists when products are replenished.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab 2: Inventory -->
+        <div id="tab-inventory" class="tab-section">
+          <h2>Listed Handloom Catalog</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Manage pricing, description revisions, and stock counts.</p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Image</th>
+                  <th>Creations Title</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>In Stock</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="artisan-products-rows">
+                <!-- Dynamically loaded -->
+                <tr>
+                  <td colspan="6" style="text-align:center;">Loading inventory records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Orders -->
+        <div id="tab-orders" class="tab-section">
+          <h2>Purchase Orders Log</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">View order specifics and modify shipment tracking status.</p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items Purchased</th>
+                  <th>Your Revenue</th>
+                  <th>Status</th>
+                  <th>Shipment Action</th>
+                </tr>
+              </thead>
+              <tbody id="artisan-orders-rows">
+                <!-- Dynamically loaded -->
+                <tr>
+                  <td colspan="6" style="text-align:center;">Loading customer orders...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 4: Profile -->
+        <div id="tab-profile" class="tab-section">
+          <h2>Shop Profile Settings</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Manage public bio and geographical details.</p>
+
+          <form id="artisan-profile-form" onsubmit="saveArtisanProfile(event)" enctype="multipart/form-data">
+            <div style="display:flex; align-items:center; gap:25px; margin-bottom:20px;">
+              <img id="profile-photo-preview" src="/uploads/default-avatar.svg" alt="Profile Preview" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid var(--secondary);">
+              <div>
+                <label style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:5px;">Shop Photo / Avatar</label>
+                <input type="file" id="artisan-photo-file" accept="image/*" onchange="previewProfilePhoto(event)" style="font-size:0.85rem;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-shop-name">Artisan Shop Name *</label>
+              <input type="text" id="profile-shop-name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="profile-contact">Direct Contact Phone Number *</label>
+              <input type="text" id="profile-contact" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="profile-location">Weaving Village / City & State *</label>
+              <input type="text" id="profile-location" required placeholder="e.g. Pochampally, Telangana">
+            </div>
+
+            <div class="form-group">
+              <label for="profile-bio">About the Artisan / Shop Story</label>
+              <textarea id="profile-bio" placeholder="Describe the heritage weaving technique, family history, and types of loom styles you use..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Shop Settings</button>
+          </form>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Product Form Modal Dialog -->
+  <div id="product-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeProductModal()">×</button>
+      <h2 id="modal-title">List Handloom Creation</h2>
+      <form id="product-form" onsubmit="submitProductForm(event)" enctype="multipart/form-data" style="margin-top:20px;">
+        <input type="hidden" id="form-product-id">
+        
+        <div class="form-group">
+          <label for="prod-title">Product Title *</label>
+          <input type="text" id="prod-title" required placeholder="e.g. Pure Pochampally Ikat Silk Saree">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+          <div class="form-group">
+            <label for="prod-category">Category *</label>
+            <select id="prod-category" required>
+              <option value="Saree">Traditional Saree</option>
+              <option value="Shawl">Woolen Shawl</option>
+              <option value="Home Decor">Home Furnishings</option>
+              <option value="Fabrics">Handloom Fabrics</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="prod-price">Retail Price (₹) *</label>
+            <input type="number" id="prod-price" min="0" required placeholder="Price in INR">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+          <div class="form-group">
+            <label for="prod-stock">Initial Stock Quantity *</label>
+            <input type="number" id="prod-stock" min="0" required placeholder="Stock count">
+          </div>
+          <div class="form-group">
+            <label>Product Image File *</label>
+            <input type="file" id="prod-image-file" accept="image/*" onchange="previewProductPhoto(event)" style="font-size:0.8rem;">
+            <img id="product-photo-preview-element" class="preview-img" alt="Product Image Preview">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="prod-desc">Item Description & Weaving Details *</label>
+          <textarea id="prod-desc" required placeholder="Provide details on weave structure, thread count, materials used (silk, cotton, wool), care instructions..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Publish to Catalog</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Session.isLoggedIn() || !Session.isArtisan()) {
+        showToast('Access denied. Please log in as an Artisan.', 'error');
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      const user = Session.getUser();
+      if (user.status !== 'approved') {
+        document.getElementById('artisan-approval-alert').style.display = 'block';
+      }
+
+      loadArtisanData();
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.dashboard-menu a').forEach(b => b.classList.remove('active'));
+      document.getElementById(`menu-${tabName}`).classList.add('active');
+
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    async function loadArtisanData() {
+      try {
+        const user = Session.getUser();
+        // Load details via /me to get populated profiles
+        const response = await apiFetch('/api/auth/me');
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          const profile = resJson.user.profile;
+          if (profile) {
+            document.getElementById('artisan-shop-subtitle').textContent = `Shop: ${profile.shopName} | Status: ${resJson.user.status.toUpperCase()}`;
+            
+            // Prefill Profile edit form
+            document.getElementById('profile-shop-name').value = profile.shopName;
+            document.getElementById('profile-contact').value = profile.contactNumber;
+            document.getElementById('profile-location').value = profile.location;
+            document.getElementById('profile-bio').value = profile.bio || '';
+            document.getElementById('profile-photo-preview').src = profile.photoUrl || '/uploads/default-avatar.svg';
+          }
+        }
+
+        // Fetch products of this artisan
+        const prodResponse = await fetch(`/api/products?artisanId=${user.id}`);
+        const prodJson = await prodResponse.json();
+        
+        // Fetch orders of this artisan
+        const ordResponse = await apiFetch('/api/orders/artisan');
+        const ordJson = await ordResponse.json();
+
+        if (prodJson.success && ordJson.success) {
+          renderAnalytics(prodJson.data, ordJson.data);
+          renderInventory(prodJson.data);
+          renderOrders(ordJson.data);
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderAnalytics(products, orders) {
+      // Sum revenue from paid orders
+      const paidOrders = orders.filter(o => o.paymentStatus === 'Paid');
+      const totalRevenue = paidOrders.reduce((sum, order) => sum + order.artisanTotal, 0);
+
+      document.getElementById('stat-revenue').textContent = `₹${totalRevenue}`;
+      document.getElementById('stat-orders').textContent = orders.length;
+      document.getElementById('stat-products').textContent = products.length;
+    }
+
+    function renderInventory(products) {
+      const tbody = document.getElementById('artisan-products-rows');
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No creations listed yet. Click "List New Creation" to start selling.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = products.map(product => `
+        <tr>
+          <td><img src="${product.imageUrl}" alt="product image" style="width:50px; height:50px; border-radius:4px; object-fit:cover; border:1px solid var(--border-color);"></td>
+          <td style="font-weight:600; color:var(--primary);">${product.title}</td>
+          <td>${product.category}</td>
+          <td style="font-weight:600;">₹${product.price}</td>
+          <td>${product.stock}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="editProduct('${product._id}')" style="padding:4px 8px; font-size:0.75rem;">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product._id}')" style="padding:4px 8px; font-size:0.75rem;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('artisan-orders-rows');
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No purchases received yet. Once customers checkout, orders appear here.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(order => {
+        const itemSummaries = order.artisanItems.map(item => `${item.product ? item.product.title : 'Deleted Product'} (Qty: ${item.quantity})`).join('<br>');
+        
+        let selectHtml = '';
+        if (order.orderStatus === 'Delivered') {
+          selectHtml = `<span class="badge badge-delivered">Delivered</span>`;
+        } else {
+          selectHtml = `
+            <select style="padding:6px; border:1px solid var(--border-color); border-radius:4px; font-size:0.8rem; background:#fff;" onchange="updateOrderStatus('${order._id}', this.value)">
+              <option value="Pending" ${order.orderStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Processing" ${order.orderStatus === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${order.orderStatus === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${order.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+          `;
+        }
+
+        return `
+          <tr>
+            <td style="font-family:monospace; font-size:0.8rem; font-weight:600;">${order._id}</td>
+            <td>
+              <strong>${order.customer.username}</strong><br>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${order.shippingAddress.phone}</span>
+            </td>
+            <td style="font-size:0.8rem;">${itemSummaries}</td>
+            <td style="font-weight:600; color:var(--success);">₹${order.artisanTotal}</td>
+            <td><span class="badge ${order.orderStatus === 'Pending' ? 'badge-pending' : order.orderStatus === 'Processing' ? 'badge-processing' : order.orderStatus === 'Shipped' ? 'badge-shipped' : 'badge-delivered'}">${order.orderStatus}</span></td>
+            <td>${selectHtml}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Modal Control
+    function openProductModal() {
+      document.getElementById('product-form').reset();
+      document.getElementById('form-product-id').value = '';
+      document.getElementById('modal-title').textContent = 'List Handloom Creation';
+      document.getElementById('product-photo-preview-element').style.display = 'none';
+      document.getElementById('prod-image-file').required = true;
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    function previewProductPhoto(event) {
+      const preview = document.getElementById('product-photo-preview-element');
+      const file = event.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      }
+    }
+
+    function previewProfilePhoto(event) {
+      const preview = document.getElementById('profile-photo-preview');
+      const file = event.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+      }
+    }
+
+    async function editProduct(id) {
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          const product = resJson.data;
+          
+          document.getElementById('form-product-id').value = product._id;
+          document.getElementById('prod-title').value = product.title;
+          document.getElementById('prod-category').value = product.category;
+          document.getElementById('prod-price').value = product.price;
+          document.getElementById('prod-stock').value = product.stock;
+          document.getElementById('prod-desc').value = product.description;
+          
+          const preview = document.getElementById('product-photo-preview-element');
+          preview.src = product.imageUrl;
+          preview.style.display = 'block';
+          
+          document.getElementById('prod-image-file').required = false; // Optional on edit
+          document.getElementById('modal-title').textContent = 'Edit Handloom Product';
+          document.getElementById('product-modal').classList.add('active');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Are you sure you want to permanently delete this creation?')) return;
+      
+      try {
+        const response = await apiFetch(`/api/products/${id}`, { method: 'DELETE' });
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          showToast('Product removed from catalog.', 'success');
+          loadArtisanData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function submitProductForm(e) {
+      e.preventDefault();
+      
+      const productId = document.getElementById('form-product-id').value;
+      const title = document.getElementById('prod-title').value;
+      const category = document.getElementById('prod-category').value;
+      const price = document.getElementById('prod-price').value;
+      const stock = document.getElementById('prod-stock').value;
+      const description = document.getElementById('prod-desc').value;
+      const imageFile = document.getElementById('prod-image-file').files[0];
+
+      // Form Data is required for image files upload
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('category', category);
+      formData.append('price', price);
+      formData.append('stock', stock);
+      formData.append('description', description);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      const token = Session.getToken();
+      const method = productId ? 'PUT' : 'POST';
+      const endpoint = productId ? `/api/products/${productId}` : '/api/products';
+
+      try {
+        const response = await fetch(endpoint, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const resJson = await response.json();
+        if (resJson.success) {
+          showToast(productId ? 'Product updated!' : 'Product added successfully!', 'success');
+          closeProductModal();
+          loadArtisanData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Error uploading product data.', 'error');
+      }
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+      try {
+        const response = await apiFetch(`/api/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          showToast(`Order status updated to "${newStatus}".`, 'success');
+          loadArtisanData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function saveArtisanProfile(e) {
+      e.preventDefault();
+      
+      const shopName = document.getElementById('profile-shop-name').value;
+      const contactNumber = document.getElementById('profile-contact').value;
+      const location = document.getElementById('profile-location').value;
+      const bio = document.getElementById('profile-bio').value;
+      const photoFile = document.getElementById('artisan-photo-file').files[0];
+
+      const formData = new FormData();
+      formData.append('shopName', shopName);
+      formData.append('contactNumber', contactNumber);
+      formData.append('location', location);
+      formData.append('bio', bio);
+      if (photoFile) {
+        formData.append('photo', photoFile);
+      }
+
+      const token = Session.getToken();
+
+      try {
+        const response = await fetch('/api/artisans/profile', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          showToast('Profile configuration updated!', 'success');
+          
+          // Update username in localstorage state if needed
+          const user = Session.getUser();
+          user.shopName = shopName;
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          loadArtisanData();
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Server update failure.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

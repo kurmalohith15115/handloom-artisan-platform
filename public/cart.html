@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart & Checkout - Artisans Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .cart-item-card {
+      display: flex;
+      gap: 20px;
+      background:#fff;
+      padding:15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      margin-bottom: 15px;
+      align-items: center;
+    }
+    .cart-item-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    .summary-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 25px;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+    }
+    @media (max-width: 768px) {
+      .cart-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="section container">
+    <h1>Shopping Cart</h1>
+    
+    <div class="cart-layout">
+      <!-- Left: Cart Items list -->
+      <div>
+        <div id="cart-items-container">
+          <p style="color:var(--text-muted); font-size:1rem;">Your shopping cart is currently empty.</p>
+        </div>
+        
+        <!-- Address Form (Displays if items are in cart) -->
+        <div id="shipping-form-container" style="display:none; margin-top:35px; border-top:1px solid var(--border-color); padding-top:25px;">
+          <h2>Shipping & Delivery Address</h2>
+          <form id="shipping-address-form" style="margin-top:15px;">
+            <div class="form-group">
+              <label for="ship-name">Recipient Name *</label>
+              <input type="text" id="ship-name" required placeholder="e.g. Kurman Ramu">
+            </div>
+            <div class="form-group">
+              <label for="ship-address">Address Line *</label>
+              <input type="text" id="ship-address" required placeholder="Street Address, Area, House No.">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+              <div class="form-group">
+                <label for="ship-city">City *</label>
+                <input type="text" id="ship-city" required placeholder="e.g. Jaipur">
+              </div>
+              <div class="form-group">
+                <label for="ship-state">State *</label>
+                <input type="text" id="ship-state" required placeholder="e.g. Rajasthan">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+              <div class="form-group">
+                <label for="ship-zip">PIN Code *</label>
+                <input type="text" id="ship-zip" required placeholder="e.g. 302001">
+              </div>
+              <div class="form-group">
+                <label for="ship-phone">Contact Phone *</label>
+                <input type="text" id="ship-phone" required placeholder="e.g. +91 98765 43210">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Summary Pane -->
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+        <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+        
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:500;">
+          <span>Total Items:</span>
+          <span id="summary-items">0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:500;">
+          <span>Shipping:</span>
+          <span style="color:var(--success); font-weight:600;">FREE</span>
+        </div>
+        
+        <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:700; font-size:1.25rem; color:var(--primary);">
+          <span>Grand Total:</span>
+          <span id="summary-total">₹0.00</span>
+        </div>
+
+        <div id="checkout-actions-wrapper">
+          <!-- Checkout CTA trigger -->
+          <button id="checkout-btn" class="btn btn-primary" style="width:100%; padding:14px;" onclick="initiateCheckout()">Proceed to Secure Checkout</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sandbox Simulation Overlay -->
+  <div id="sandbox-payment-overlay" class="sandbox-overlay" style="display:none;">
+    <div class="sandbox-box">
+      <h3>🛠️ Sandbox Payment Simulator</h3>
+      <p>No Razorpay API keys configured. We have generated a mock order reference. Choose simulated payment resolution:</p>
+      
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <button class="btn btn-primary" onclick="verifySandboxCheckout('success')">Simulate Payment Success</button>
+        <button class="btn btn-danger" onclick="verifySandboxCheckout('fail')">Simulate Payment Failure</button>
+        <button class="btn btn-outline" style="border-color:#ccc; color:#777;" onclick="closeSandboxOverlay()">Cancel Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <!-- Razorpay Checkout library -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCart();
+      prefillAddressDetails();
+    });
+
+    function renderCart() {
+      const cart = Cart.get();
+      const container = document.getElementById('cart-items-container');
+      const formContainer = document.getElementById('shipping-form-container');
+      
+      const itemsCount = Cart.totalItems();
+      const totalAmount = Cart.totalAmount();
+      
+      document.getElementById('summary-items').textContent = itemsCount;
+      document.getElementById('summary-total').textContent = `₹${totalAmount}`;
+
+      if (cart.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:1rem; padding: 20px 0;">Your shopping cart is currently empty.</p>`;
+        formContainer.style.display = 'none';
+        document.getElementById('checkout-btn').disabled = true;
+        document.getElementById('checkout-btn').style.opacity = 0.5;
+        return;
+      }
+
+      formContainer.style.display = 'block';
+      document.getElementById('checkout-btn').disabled = false;
+      document.getElementById('checkout-btn').style.opacity = 1;
+
+      container.innerHTML = cart.map(item => `
+        <div class="cart-item-card">
+          <img class="cart-item-img" src="${item.imageUrl}" alt="${item.title}">
+          <div style="flex:1;">
+            <h4 style="margin:0; font-size:1.05rem;">${item.title}</h4>
+            <span style="font-size:0.9rem; font-weight:600; color:var(--primary);">₹${item.price}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-outline btn-sm" style="padding:2px 8px; font-size:0.8rem;" onclick="decrementQty('${item.productId}')">-</button>
+            <span style="font-weight:600; width:20px; text-align:center;">${item.quantity}</span>
+            <button class="btn btn-outline btn-sm" style="padding:2px 8px; font-size:0.8rem;" onclick="incrementQty('${item.productId}', ${item.stock})">+</button>
+          </div>
+          <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2rem; font-weight:700; padding:5px 10px;" onclick="Cart.remove('${item.productId}'); renderCart();">×</button>
+        </div>
+      `).join('');
+    }
+
+    function prefillAddressDetails() {
+      // If customer dashboard address exists, fetch and prefill.
+      const user = Session.getUser();
+      if (user && user.role === 'customer') {
+        const savedAddr = localStorage.getItem(`addr_${user.id}`);
+        if (savedAddr) {
+          const addr = JSON.parse(savedAddr);
+          document.getElementById('ship-name').value = addr.name || '';
+          document.getElementById('ship-address').value = addr.addressLine || '';
+          document.getElementById('ship-city').value = addr.city || '';
+          document.getElementById('ship-state').value = addr.state || '';
+          document.getElementById('ship-zip').value = addr.postalCode || '';
+          document.getElementById('ship-phone').value = addr.phone || '';
+        }
+      }
+    }
+
+    function decrementQty(id) {
+      const cart = Cart.get();
+      const item = cart.find(i => i.productId === id);
+      if (item) {
+        if (item.quantity > 1) {
+          Cart.updateQty(id, item.quantity - 1);
+        } else {
+          Cart.remove(id);
+        }
+        renderCart();
+      }
+    }
+
+    function incrementQty(id, stock) {
+      const cart = Cart.get();
+      const item = cart.find(i => i.productId === id);
+      if (item) {
+        if (item.quantity < stock) {
+          Cart.updateQty(id, item.quantity + 1);
+          renderCart();
+        } else {
+          showToast('Cannot add more. Limit of available stock reached.', 'error');
+        }
+      }
+    }
+
+    let activeCheckoutOrder = null;
+
+    async function initiateCheckout() {
+      if (!Session.isLoggedIn()) {
+        showToast('Please log in to complete your purchase.', 'info');
+        setTimeout(() => {
+          window.location.href = '/login.html?redirect=cart';
+        }, 1500);
+        return;
+      }
+      if (!Session.isCustomer()) {
+        showToast('Only Customer accounts can checkout purchases.', 'error');
+        return;
+      }
+
+      // Check form validity
+      const form = document.getElementById('shipping-address-form');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const shippingAddress = {
+        name: document.getElementById('ship-name').value,
+        addressLine: document.getElementById('ship-address').value,
+        city: document.getElementById('ship-city').value,
+        state: document.getElementById('ship-state').value,
+        postalCode: document.getElementById('ship-zip').value,
+        phone: document.getElementById('ship-phone').value
+      };
+
+      // Save address for future use
+      const user = Session.getUser();
+      localStorage.setItem(`addr_${user.id}`, JSON.stringify(shippingAddress));
+
+      const cartItems = Cart.get().map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        title: item.title
+      }));
+
+      try {
+        const response = await apiFetch('/api/orders', {
+          method: 'POST',
+          body: JSON.stringify({ products: cartItems, shippingAddress })
+        });
+        
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          activeCheckoutOrder = resJson;
+          
+          if (resJson.isSandbox) {
+            // Trigger local sandbox modal overlay
+            document.getElementById('sandbox-payment-overlay').style.display = 'flex';
+          } else {
+            // Initiate standard Razorpay checkout library script
+            triggerRazorpayPayment(resJson);
+          }
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Error creating order.', 'error');
+      }
+    }
+
+    function triggerRazorpayPayment(data) {
+      const options = {
+        key: data.keyId,
+        amount: data.amount * 100,
+        currency: 'INR',
+        name: 'Handloom Artisan Support',
+        description: 'Direct Artisan Payment Transaction',
+        order_id: data.razorpayOrderId,
+        handler: async function (response) {
+          try {
+            const verifyRes = await apiFetch('/api/orders/verify', {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpayOrderId: data.razorpayOrderId,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                isSandbox: false
+              })
+            });
+            const resJson = await verifyRes.json();
+            if (resJson.success) {
+              Cart.clear();
+              showToast('Payment successful! Redirecting to tracker...', 'success');
+              setTimeout(() => {
+                window.location.href = `/order-tracking.html?orderId=${resJson.orderId}`;
+              }, 2000);
+            } else {
+              showToast('Verification failed.', 'error');
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        },
+        prefill: {
+          name: document.getElementById('ship-name').value,
+          contact: document.getElementById('ship-phone').value
+        },
+        theme: {
+          color: '#800020'
+        }
+      };
+      
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+
+    async function verifySandboxCheckout(status) {
+      if (status === 'fail') {
+        showToast('Payment simulation cancelled/failed.', 'error');
+        document.getElementById('sandbox-payment-overlay').style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/orders/verify', {
+          method: 'POST',
+          body: JSON.stringify({
+            razorpayOrderId: activeCheckoutOrder.razorpayOrderId,
+            isSandbox: true
+          })
+        });
+        const resJson = await response.json();
+        
+        if (resJson.success) {
+          Cart.clear();
+          showToast('Simulated Payment Verified!', 'success');
+          document.getElementById('sandbox-payment-overlay').style.display = 'none';
+          setTimeout(() => {
+            window.location.href = `/order-tracking.html?orderId=${resJson.orderId}`;
+          }, 1500);
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function closeSandboxOverlay() {
+      document.getElementById('sandbox-payment-overlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

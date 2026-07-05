@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login or Register - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .auth-page-wrapper {
+      max-width: 480px;
+      margin: 40px auto;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 35px;
+      box-shadow: var(--shadow-md);
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--bg-beige);
+      margin-bottom: 25px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+    .auth-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .auth-form-section {
+      display: none;
+    }
+    .auth-form-section.active {
+      display: block;
+    }
+    .artisan-extra-fields {
+      display: none;
+      background-color: var(--bg-beige);
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="container section">
+    <div class="auth-page-wrapper">
+      
+      <!-- Tab Header Selector -->
+      <div class="auth-tabs">
+        <div id="tab-btn-login" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+        <div id="tab-btn-register" class="auth-tab" onclick="switchAuthTab('register')">Create Account</div>
+      </div>
+
+      <!-- Section 1: LOGIN -->
+      <div id="form-sec-login" class="auth-form-section active">
+        <h2 style="font-size:1.6rem; text-align:center; margin-bottom:10px;">Welcome Back</h2>
+        <p style="color:var(--text-muted); text-align:center; font-size:0.85rem; margin-bottom:20px;">Access your handloom dashboard or customer account</p>
+
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="login-cred">Email Address or Username *</label>
+            <input type="text" id="login-cred" required placeholder="Enter username or email address">
+          </div>
+          <div class="form-group">
+            <label for="login-pass">Password *</label>
+            <input type="password" id="login-pass" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; margin-top:10px;">Login securely</button>
+        </form>
+      </div>
+
+      <!-- Section 2: REGISTER -->
+      <div id="form-sec-register" class="auth-form-section">
+        <h2 style="font-size:1.6rem; text-align:center; margin-bottom:10px;">Register Account</h2>
+        <p style="color:var(--text-muted); text-align:center; font-size:0.85rem; margin-bottom:20px;">Join our community as a customer buyer or heritage artisan</p>
+
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="reg-username">Username *</label>
+            <input type="text" id="reg-username" required placeholder="Choose a unique public name">
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email Address *</label>
+            <input type="email" id="reg-email" required placeholder="e.g. weaver@handloom.org">
+          </div>
+          <div class="form-group">
+            <label for="reg-pass">Secure Password *</label>
+            <input type="password" id="reg-pass" required placeholder="Min 6 characters">
+          </div>
+          <div class="form-group">
+            <label for="reg-role">I want to join as a *</label>
+            <select id="reg-role" required onchange="toggleArtisanRegistrationFields(this.value)">
+              <option value="customer">Customer (Purchase beautiful craftwork)</option>
+              <option value="artisan">Artisan / Weaver (List and sell my own looms)</option>
+            </select>
+          </div>
+
+          <!-- Extra Artisan Fields (toggled on selecting role artisan) -->
+          <div class="artisan-extra-fields" id="artisan-fields-wrapper">
+            <h4 style="margin-bottom:12px; font-size:0.95rem;">Shop Details (Required for Verification)</h4>
+            
+            <div class="form-group">
+              <label for="reg-shop">Artisan Shop Name *</label>
+              <input type="text" id="reg-shop" placeholder="e.g. Ramu Handlooms">
+            </div>
+            
+            <div class="form-group">
+              <label for="reg-location">Villages / Location Location *</label>
+              <input type="text" id="reg-location" placeholder="City / State e.g. Pochampally, Telangana">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-phone">Contact Phone Number *</label>
+              <input type="text" id="reg-phone" placeholder="e.g. +91 99999 88888">
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="reg-bio">Short Biography / Shop Bio</label>
+              <textarea id="reg-bio" placeholder="Provide background story of your loom work styles..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-secondary" style="width:100%; padding:12px; margin-top:10px;">Register Account</button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let redirectParam = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      redirectParam = params.get('redirect');
+      const action = params.get('action');
+      const role = params.get('role');
+      
+      if (action === 'register') {
+        switchAuthTab('register');
+      }
+      if (role === 'artisan') {
+        document.getElementById('reg-role').value = 'artisan';
+        toggleArtisanRegistrationFields('artisan');
+      }
+
+      // If already logged in, redirect away
+      if (Session.isLoggedIn()) {
+        redirectDashboard();
+      }
+    });
+
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.auth-form-section').forEach(el => el.classList.remove('active'));
+
+      if (tab === 'login') {
+        document.getElementById('tab-btn-login').classList.add('active');
+        document.getElementById('form-sec-login').classList.add('active');
+      } else {
+        document.getElementById('tab-btn-register').classList.add('active');
+        document.getElementById('form-sec-register').classList.add('active');
+      }
+    }
+
+    function toggleArtisanRegistrationFields(role) {
+      const wrapper = document.getElementById('artisan-fields-wrapper');
+      const inputs = wrapper.querySelectorAll('input');
+      
+      if (role === 'artisan') {
+        wrapper.style.display = 'block';
+        inputs.forEach(input => input.required = true);
+      } else {
+        wrapper.style.display = 'none';
+        inputs.forEach(input => input.required = false);
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const emailOrUsername = document.getElementById('login-cred').value.trim();
+      const password = document.getElementById('login-pass').value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emailOrUsername, password })
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          Session.save(resJson.token, resJson.user);
+          showToast(`Welcome back, ${resJson.user.username}!`, 'success');
+          
+          setTimeout(() => {
+            if (redirectParam === 'cart') {
+              window.location.href = '/cart.html';
+            } else {
+              redirectDashboard();
+            }
+          }, 1200);
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('System login verification error.', 'error');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-pass').value;
+      const role = document.getElementById('reg-role').value;
+      
+      const payload = { username, email, password, role };
+
+      if (role === 'artisan') {
+        payload.shopName = document.getElementById('reg-shop').value.trim();
+        payload.location = document.getElementById('reg-location').value.trim();
+        payload.contactNumber = document.getElementById('reg-phone').value.trim();
+        payload.bio = document.getElementById('reg-bio').value.trim();
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const resJson = await response.json();
+
+        if (resJson.success) {
+          Session.save(resJson.token, resJson.user);
+          showToast('Account registered successfully!', 'success');
+          
+          setTimeout(() => {
+            if (redirectParam === 'cart') {
+              window.location.href = '/cart.html';
+            } else {
+              redirectDashboard();
+            }
+          }, 1200);
+        } else {
+          showToast(resJson.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Registration system submission failure.', 'error');
+      }
+    }
+
+    function redirectDashboard() {
+      const user = Session.getUser();
+      if (!user) return;
+      
+      if (user.role === 'admin') {
+        window.location.href = '/admin-dashboard.html';
+      } else if (user.role === 'artisan') {
+        window.location.href = '/artisan-dashboard.html';
+      } else {
+        window.location.href = '/customer-dashboard.html';
+      }
+    }
+  </script>
+</body>
+</html>

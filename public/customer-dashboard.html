@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard - Handloom Artisan Support Platform</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .tab-section {
+      display: none;
+    }
+    .tab-section.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header></header>
+
+  <main class="section container">
+    <h1>Customer Dashboard</h1>
+    
+    <div class="dashboard-container">
+      <!-- Sidebar navigation tabs -->
+      <aside class="dashboard-sidebar">
+        <ul class="dashboard-menu">
+          <li><a href="#" id="menu-orders" class="active" onclick="switchTab('orders')">📋 Order History</a></li>
+          <li><a href="#" id="menu-wishlist" onclick="switchTab('wishlist')">❤️ My Wishlist</a></li>
+          <li><a href="#" id="menu-address" onclick="switchTab('address')">📍 Manage Address</a></li>
+          <li><a href="#" id="menu-profile" onclick="switchTab('profile')">👤 My Profile Details</a></li>
+        </ul>
+      </aside>
+
+      <!-- Dashboard dynamic tab panels -->
+      <section class="dashboard-content">
+        
+        <!-- Tab 1: Orders -->
+        <div id="tab-orders" class="tab-section active">
+          <h2>Your Purchase History</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 20px;">Review delivery status, tracking links and receipt payment information.</p>
+          
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order Reference ID</th>
+                  <th>Order Date</th>
+                  <th>Total Price</th>
+                  <th>Payment Status</th>
+                  <th>Order Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customer-orders-rows">
+                <tr>
+                  <td colspan="6" style="text-align:center; color:var(--text-muted);">Fetching order records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2: Wishlist -->
+        <div id="tab-wishlist" class="tab-section">
+          <h2>My Wishlisted Creations</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 20px;">Handloom items you saved for later checkout.</p>
+          
+          <div id="customer-wishlist-grid" class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+            <p style="color:var(--text-muted);">No products saved in your wishlist.</p>
+          </div>
+        </div>
+
+        <!-- Tab 3: Address -->
+        <div id="tab-address" class="tab-section">
+          <h2>Default Shipping Details</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 20px;">Manage delivery contact settings for quick checkouts.</p>
+          
+          <form id="dashboard-address-form" onsubmit="saveDashboardAddress(event)">
+            <div class="form-group">
+              <label for="dash-addr-name">Full Recipient Name *</label>
+              <input type="text" id="dash-addr-name" required>
+            </div>
+            <div class="form-group">
+              <label for="dash-addr-line">Street Address / House No. *</label>
+              <input type="text" id="dash-addr-line" required>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <div class="form-group">
+                <label for="dash-addr-city">City *</label>
+                <input type="text" id="dash-addr-city" required>
+              </div>
+              <div class="form-group">
+                <label for="dash-addr-state">State *</label>
+                <input type="text" id="dash-addr-state" required>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <div class="form-group">
+                <label for="dash-addr-zip">ZIP / PIN Code *</label>
+                <input type="text" id="dash-addr-zip" required>
+              </div>
+              <div class="form-group">
+                <label for="dash-addr-phone">Phone Number *</label>
+                <input type="text" id="dash-addr-phone" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Tab 4: Profile -->
+        <div id="tab-profile" class="tab-section">
+          <h2>My Profile Information</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 25px;">Registered account credentials.</p>
+          
+          <div style="background-color:var(--bg-cream); border:1px solid var(--border-color); padding:25px; border-radius:var(--radius); font-size:0.95rem;">
+            <p style="margin-bottom:12px;"><strong>User Account ID:</strong> <span id="profile-id" style="font-family:monospace; color:var(--text-muted);">64...</span></p>
+            <p style="margin-bottom:12px;"><strong>Username Account:</strong> <span id="profile-username">Loading...</span></p>
+            <p style="margin-bottom:12px;"><strong>Registered Email:</strong> <span id="profile-email">Loading...</span></p>
+            <p style="margin-bottom:12px;"><strong>Account Type:</strong> <span class="badge badge-delivered">Customer Account</span></p>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <footer></footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Session.isLoggedIn() || !Session.isCustomer()) {
+        showToast('Access denied. Please log in as a Customer.', 'error');
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      loadCustomerProfile();
+      loadCustomerOrders();
+      loadWishlist();
+      loadSavedAddress();
+    });
+
+    function switchTab(tabName) {
+      // Toggle menu buttons
+      document.querySelectorAll('.dashboard-menu a').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`menu-${tabName}`).classList.add('active');
+
+      // Toggle tab view divs
+      document.querySelectorAll('.tab-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+    }
+
+    function loadCustomerProfile() {
+      const user = Session.getUser();
+      if (user) {
+        document.getElementById('profile-id').textContent = user.id;
+        document.getElementById('profile-username').textContent = user.username;
+        document.getElementById('profile-email').textContent = user.email;
+      }
+    }
+
+    async function loadCustomerOrders() {
+      try {
+        const response = await apiFetch('/api/orders/customer');
+        const resJson = await response.json();
+        
+        const tbody = document.getElementById('customer-orders-rows');
+        
+        if (resJson.success && resJson.data.length > 0) {
+          tbody.innerHTML = resJson.data.map(order => {
+            const dateStr = new Date(order.createdAt).toLocaleDateString();
+            
+            // Format order tracking classes
+            let orderStatusClass = 'badge-pending';
+            if (order.orderStatus === 'Processing') orderStatusClass = 'badge-processing';
+            if (order.orderStatus === 'Shipped') orderStatusClass = 'badge-shipped';
+            if (order.orderStatus === 'Delivered') orderStatusClass = 'badge-delivered';
+
+            let payStatusClass = 'badge-pending';
+            if (order.paymentStatus === 'Paid') payStatusClass = 'badge-delivered';
+            if (order.paymentStatus === 'Failed') payStatusClass = 'badge-failed';
+
+            return `
+              <tr>
+                <td style="font-family:monospace; font-size:0.8rem; font-weight:600;">${order._id}</td>
+                <td>${dateStr}</td>
+                <td style="font-weight:600;">₹${order.totalAmount}</td>
+                <td><span class="badge ${payStatusClass}">${order.paymentStatus}</span></td>
+                <td><span class="badge ${orderStatusClass}">${order.orderStatus}</span></td>
+                <td>
+                  <a href="/order-tracking.html?orderId=${order._id}" class="btn btn-outline btn-sm">Track</a>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align:center; color:var(--text-muted); padding:30px 0;">You have not made any purchases yet.</td>
+            </tr>
+          `;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadWishlist() {
+      const wishlistIds = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const container = document.getElementById('customer-wishlist-grid');
+
+      if (wishlistIds.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); grid-column:1/-1;">Your wishlist is empty.</p>`;
+        return;
+      }
+
+      try {
+        const fetchPromises = wishlistIds.map(id => fetch(`/api/products/${id}`).then(r => r.json()));
+        const results = await Promise.all(fetchPromises);
+        
+        const validProducts = results.filter(res => res.success && res.data).map(res => res.data);
+        
+        if (validProducts.length > 0) {
+          container.innerHTML = validProducts.map(product => `
+            <div class="product-card">
+              <div class="product-image-container" style="height:150px;">
+                <img src="${product.imageUrl}" alt="${product.title}">
+                <button class="wishlist-btn" onclick="removeFromWishlist('${product._id}')">🗑️</button>
+              </div>
+              <div class="product-details-content" style="padding:12px;">
+                <h4 style="font-family:var(--font-body); font-size:0.95rem; margin-bottom:5px; height:36px; overflow:hidden;">${product.title}</h4>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                  <span style="font-weight:700; color:var(--primary); font-size:1rem;">₹${product.price}</span>
+                  <a href="/product-details.html?id=${product._id}" class="btn btn-primary btn-sm" style="padding:4px 8px; font-size:0.75rem;">View</a>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = `<p style="color:var(--text-muted); grid-column:1/-1;">Saved creations are no longer available.</p>`;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function removeFromWishlist(id) {
+      let wishlistIds = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      wishlistIds = wishlistIds.filter(item => item !== id);
+      localStorage.setItem('wishlist', JSON.stringify(wishlistIds));
+      showToast('Item removed from wishlist.', 'info');
+      loadWishlist();
+    }
+
+    function loadSavedAddress() {
+      const user = Session.getUser();
+      const savedAddr = localStorage.getItem(`addr_${user.id}`);
+      if (savedAddr) {
+        const addr = JSON.parse(savedAddr);
+        document.getElementById('dash-addr-name').value = addr.name || '';
+        document.getElementById('dash-addr-line').value = addr.addressLine || '';
+        document.getElementById('dash-addr-city').value = addr.city || '';
+        document.getElementById('dash-addr-state').value = addr.state || '';
+        document.getElementById('dash-addr-zip').value = addr.postalCode || '';
+        document.getElementById('dash-addr-phone').value = addr.phone || '';
+      }
+    }
+
+    function saveDashboardAddress(e) {
+      e.preventDefault();
+      const user = Session.getUser();
+      
+      const addrObj = {
+        name: document.getElementById('dash-addr-name').value,
+        addressLine: document.getElementById('dash-addr-line').value,
+        city: document.getElementById('dash-addr-city').value,
+        state: document.getElementById('dash-addr-state').value,
+        postalCode: document.getElementById('dash-addr-zip').value,
+        phone: document.getElementById('dash-addr-phone').value
+      };
+
+      localStorage.setItem(`addr_${user.id}`, JSON.stringify(addrObj));
+      showToast('Address settings updated successfully!', 'success');
+    }
+  </script>
+</body>
+</html>
