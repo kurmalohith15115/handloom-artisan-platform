@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
+    "dev:standalone": "node src/devServer.js",
     "bootstrap:admin": "node src/scripts/bootstrapAdmin.js",
     "seed": "node src/scripts/seedData.js",
     "test": "cross-env NODE_ENV=test vitest run"
