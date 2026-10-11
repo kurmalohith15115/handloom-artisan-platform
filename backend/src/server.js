@@ -6,7 +6,7 @@ const config = validateEnv();
 
 const app = require('./app');
 
-const PORT = config.PORT || 5000;
+const PORT = config.PORT || 5001;
 
 let server;
 

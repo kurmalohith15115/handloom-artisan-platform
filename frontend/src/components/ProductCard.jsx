@@ -34,7 +34,7 @@ export const ProductCard = ({ product }) => {
     product.images && product.images[0]
       ? product.images[0].startsWith('http')
         ? product.images[0]
-        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.images[0]}`
+        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.images[0]}`
       : 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80';
 
   return (

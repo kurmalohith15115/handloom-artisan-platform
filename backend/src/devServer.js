@@ -145,7 +145,7 @@ async function startDevServer() {
     console.log('[DEV-SERVER] Seeding completed successfully.');
   }
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 5001;
   app.listen(PORT, () => {
     console.log('\n================================================================');
     console.log('  HANDLOOM ARTISAN SUPPORT PLATFORM — LOCAL DEVELOPMENT SERVER');

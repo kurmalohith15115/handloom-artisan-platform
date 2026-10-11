@@ -133,7 +133,7 @@ export const ProductDetails = () => {
     product.images && product.images[activeImageIndex]
       ? product.images[activeImageIndex].startsWith('http')
         ? product.images[activeImageIndex]
-        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.images[activeImageIndex]}`
+        : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.images[activeImageIndex]}`
       : 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80';
 
   return (
@@ -211,7 +211,7 @@ export const ProductDetails = () => {
                     }}
                   >
                     <img
-                      src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${img}`}
+                      src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${img}`}
                       alt={`Thumbnail ${idx + 1}`}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

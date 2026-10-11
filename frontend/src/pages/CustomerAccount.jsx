@@ -332,7 +332,7 @@ export const CustomerAccount = () => {
                           <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             {item.image && (
                               <img
-                                src={item.image.startsWith('http') ? item.image : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${item.image}`}
+                                src={item.image.startsWith('http') ? item.image : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${item.image}`}
                                 alt={item.title}
                                 style={{ width: '56px', height: '56px', borderRadius: '4px', objectFit: 'cover' }}
                               />

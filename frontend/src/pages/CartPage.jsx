@@ -88,7 +88,7 @@ export const CartPage = () => {
                 prod.images && prod.images[0]
                   ? prod.images[0].startsWith('http')
                     ? prod.images[0]
-                    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${prod.images[0]}`
+                    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}${prod.images[0]}`
                   : 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&q=80';
 
               return (
