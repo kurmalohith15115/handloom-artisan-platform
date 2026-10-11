@@ -1,0 +1,26 @@
+# Dependency directories
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Production build output
+frontend/dist/
+
+# Environment and sensitive credential files
+.env
+backend/.env
+frontend/.env
+*.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Uploaded media (keep uploads directory structure)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db

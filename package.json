@@ -1,0 +1,26 @@
+{
+  "name": "handloom-artisan-support-platform",
+  "version": "1.0.0",
+  "description": "A Marketplace for Handloom, Handicrafts and Traditional Indian Products with separate Admin, Artisan and Customer portals.",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "cd backend && npm test",
+    "bootstrap:admin": "cd backend && npm run bootstrap:admin",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "handloom",
+    "artisan",
+    "indian-handicrafts",
+    "marketplace",
+    "react",
+    "express",
+    "mongodb",
+    "razorpay"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "MIT"
+}
